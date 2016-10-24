@@ -1,0 +1,36 @@
+{
+    "name":                 "resurrect",
+    "version":              "9.9.9",
+    "description":
+
+      "Monitor and restart a child process.",
+
+    "keywords":
+    [
+                            "process", "child"
+    ],
+    "author":               "Alan Gutierrez <alan@prettyrobots.com>",
+    "homepage":             "https://bigeasy.github.io/resurrect",
+    "bugs":                 "https://github.com/bigeasy/resurrect/issues",
+    "license":              "MIT",
+    "repository":
+    {
+                            "type": "git",
+                            "url": "http://github.com/bigeasy/resurrect.git"
+    },
+    "dependencies":
+    {
+                            "cadence":                      "1.0.x",
+                            "demur":                        "0.0.x",
+                            "vestibule":                    "1.4.x"
+    },
+    "devDependencies":
+    {
+                            "proof":                        "1.2.x"
+    },
+    "main": "resurrect",
+    "scripts":
+    {
+                            "test": "proof platform win32 && proof test */*/*.t.js || t/test"
+    }
+}
