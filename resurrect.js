@@ -19,7 +19,7 @@ Resurrect.prototype._run = cadence(function (async) {
         this._stopped.open = null
         var argv = this._argv.slice()
         this.process = children.spawn(argv.shift(), argv, {
-            stdio: [ 'pipe', 'inherit', 'inherit', 'ipc' ]
+            stdio: [ 'pipe', 1, 2, 'ipc' ]
         })
         delta(async()).ee(this.process).on('close')
     }, function (code, signal) {
