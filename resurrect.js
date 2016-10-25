@@ -4,6 +4,9 @@ var children = require('child_process')
 var abend = require('abend')
 var Vestibule = require('vestibule')
 var Demur = require('demur')
+var util = require('util')
+var events = require('events')
+var assert = require('assert')
 
 function Resurrect (options) {
     this._argv = options.argv
@@ -11,7 +14,9 @@ function Resurrect (options) {
     this._demur = null
     this._stopped = new Vestibule
     this._stopped.open = [ null, true ]
+    events.EventEmitter.call(this)
 }
+util.inherits(Resurrect, events.EventEmitter)
 
 Resurrect.prototype._run = cadence(function (async) {
     this._demur = new Demur
@@ -21,6 +26,7 @@ Resurrect.prototype._run = cadence(function (async) {
         this.process = children.spawn(argv.shift(), argv, {
             stdio: [ 'pipe', 1, 2, 'ipc' ]
         })
+        this.emit('spawn')
         delta(async()).ee(this.process).on('close')
     }, function (code, signal) {
         this.process = null
@@ -42,9 +48,6 @@ Resurrect.prototype.start = function () {
 }
 
 Resurrect.prototype.stop = cadence(function (async) {
-    if (this._demur == null) {
-        return
-    }
     this._demur.cancel()
     if (this.process == null) {
         return
@@ -56,7 +59,7 @@ Resurrect.prototype.stop = cadence(function (async) {
         if (stopped) {
             return [ async.break ]
         }
-        this.process.kill('KILL')
+        this.process.kill('SIGKILL')
         this._stopped.enter(1000, async())
     }, function (stopped) {
         assert(stopped, 'unable to kill')
