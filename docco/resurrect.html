@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>resurrect.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+
+    <ul class="sections">
+
+          <li id="title">
+              <div class="annotation">
+                  <h1>resurrect.js</h1>
+              </div>
+          </li>
+
+
+
+        <li id="section-1">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> cadence = <span class="hljs-built_in">require</span>(<span class="hljs-string">'cadence'</span>)
+<span class="hljs-keyword">var</span> delta = <span class="hljs-built_in">require</span>(<span class="hljs-string">'delta'</span>)
+<span class="hljs-keyword">var</span> children = <span class="hljs-built_in">require</span>(<span class="hljs-string">'child_process'</span>)
+<span class="hljs-keyword">var</span> abend = <span class="hljs-built_in">require</span>(<span class="hljs-string">'abend'</span>)
+<span class="hljs-keyword">var</span> Vestibule = <span class="hljs-built_in">require</span>(<span class="hljs-string">'vestibule'</span>)
+<span class="hljs-keyword">var</span> Demur = <span class="hljs-built_in">require</span>(<span class="hljs-string">'demur'</span>)
+<span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>)
+<span class="hljs-keyword">var</span> events = <span class="hljs-built_in">require</span>(<span class="hljs-string">'events'</span>)
+<span class="hljs-keyword">var</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'assert'</span>)
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Resurrect</span> (<span class="hljs-params">options</span>) </span>{
+    <span class="hljs-keyword">this</span>._argv = options.argv
+    <span class="hljs-keyword">this</span>._child = <span class="hljs-literal">null</span>
+    <span class="hljs-keyword">this</span>._demur = <span class="hljs-literal">null</span>
+    <span class="hljs-keyword">this</span>._stopped = <span class="hljs-keyword">new</span> Vestibule
+    <span class="hljs-keyword">this</span>._stopped.open = [ <span class="hljs-literal">null</span>, <span class="hljs-literal">true</span> ]
+    events.EventEmitter.call(<span class="hljs-keyword">this</span>)
+}
+util.inherits(Resurrect, events.EventEmitter)
+
+Resurrect.prototype._run = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async</span>) </span>{
+    <span class="hljs-keyword">this</span>._demur = <span class="hljs-keyword">new</span> Demur
+    <span class="hljs-keyword">var</span> loop = <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">this</span>._stopped.open = <span class="hljs-literal">null</span>
+        <span class="hljs-keyword">var</span> argv = <span class="hljs-keyword">this</span>._argv.slice()
+        <span class="hljs-keyword">this</span>.process = children.spawn(argv.shift(), argv, {
+            <span class="hljs-attr">stdio</span>: [ <span class="hljs-string">'pipe'</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-string">'ipc'</span> ]
+        })
+        <span class="hljs-keyword">this</span>.emit(<span class="hljs-string">'spawn'</span>)
+        delta(<span class="hljs-keyword">async</span>()).ee(<span class="hljs-keyword">this</span>.process).on(<span class="hljs-string">'close'</span>)
+    }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">code, signal</span>) </span>{
+        <span class="hljs-keyword">this</span>.process = <span class="hljs-literal">null</span>
+        <span class="hljs-keyword">this</span>._stopped.notify(<span class="hljs-literal">null</span>, <span class="hljs-literal">true</span>)
+        <span class="hljs-keyword">this</span>._demur.retry(<span class="hljs-keyword">async</span>())
+    }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">again</span>) </span>{
+        <span class="hljs-keyword">if</span> (!again) {
+            <span class="hljs-keyword">this</span>._demur = <span class="hljs-literal">null</span>
+            <span class="hljs-keyword">return</span> [ loop.break ]
+        }
+    })()
+})
+
+Resurrect.prototype.start = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._demur != <span class="hljs-literal">null</span>) {
+        <span class="hljs-keyword">return</span>
+    }
+    <span class="hljs-keyword">this</span>._run(abend)
+}
+
+Resurrect.prototype.stop = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async</span>) </span>{
+    <span class="hljs-keyword">this</span>._demur.cancel()
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.process == <span class="hljs-literal">null</span>) {
+        <span class="hljs-keyword">return</span>
+    }
+    <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">this</span>.process.kill()
+        <span class="hljs-keyword">this</span>._stopped.enter(<span class="hljs-number">1000</span>, <span class="hljs-keyword">async</span>())
+    }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">stopped</span>) </span>{
+        <span class="hljs-keyword">if</span> (stopped) {
+            <span class="hljs-keyword">return</span> [ <span class="hljs-keyword">async</span>.break ]
+        }
+        <span class="hljs-keyword">this</span>.process.kill(<span class="hljs-string">'SIGKILL'</span>)
+        <span class="hljs-keyword">this</span>._stopped.enter(<span class="hljs-number">1000</span>, <span class="hljs-keyword">async</span>())
+    }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">stopped</span>) </span>{
+        assert(stopped, <span class="hljs-string">'unable to kill'</span>)
+    })
+})
+
+<span class="hljs-built_in">module</span>.exports = Resurrec
+
+</pre></div></div>
+
+        </li>
+
+    </ul>
+  </div>
+</body>
+</html>
