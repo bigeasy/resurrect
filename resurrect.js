@@ -2,7 +2,7 @@ var cadence = require('cadence')
 var delta = require('delta')
 var children = require('child_process')
 var abend = require('abend')
-var Vestibule = require('vestibule')
+var Signal = require('signal')
 var Demur = require('demur')
 var util = require('util')
 var events = require('events')
@@ -12,7 +12,7 @@ function Resurrect (options) {
     this._argv = options.argv
     this._child = null
     this._demur = null
-    this._stopped = new Vestibule
+    this._stopped = new Signal
     this._stopped.open = [ null, true ]
     events.EventEmitter.call(this)
 }
@@ -54,13 +54,13 @@ Resurrect.prototype.stop = cadence(function (async) {
     }
     async(function () {
         this.process.kill()
-        this._stopped.enter(1000, async())
+        this._stopped.wait(1000, async())
     }, function (stopped) {
         if (stopped) {
             return [ async.break ]
         }
         this.process.kill('SIGKILL')
-        this._stopped.enter(1000, async())
+        this._stopped.wait(1000, async())
     }, function (stopped) {
         assert(stopped, 'unable to kill')
     })

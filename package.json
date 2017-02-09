@@ -24,7 +24,7 @@
                             "cadence":                      "1.0.x",
                             "delta":                        "1.1.x",
                             "demur":                        "0.0.x",
-                            "vestibule":                    "1.6.x"
+                            "signal":                       "1.8.x"
     },
     "devDependencies":
     {
