@@ -34,7 +34,7 @@
 <span class="hljs-keyword">var</span> delta = <span class="hljs-built_in">require</span>(<span class="hljs-string">'delta'</span>)
 <span class="hljs-keyword">var</span> children = <span class="hljs-built_in">require</span>(<span class="hljs-string">'child_process'</span>)
 <span class="hljs-keyword">var</span> abend = <span class="hljs-built_in">require</span>(<span class="hljs-string">'abend'</span>)
-<span class="hljs-keyword">var</span> Vestibule = <span class="hljs-built_in">require</span>(<span class="hljs-string">'vestibule'</span>)
+<span class="hljs-keyword">var</span> Signal = <span class="hljs-built_in">require</span>(<span class="hljs-string">'signal'</span>)
 <span class="hljs-keyword">var</span> Demur = <span class="hljs-built_in">require</span>(<span class="hljs-string">'demur'</span>)
 <span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>)
 <span class="hljs-keyword">var</span> events = <span class="hljs-built_in">require</span>(<span class="hljs-string">'events'</span>)
@@ -44,7 +44,7 @@
     <span class="hljs-keyword">this</span>._argv = options.argv
     <span class="hljs-keyword">this</span>._child = <span class="hljs-literal">null</span>
     <span class="hljs-keyword">this</span>._demur = <span class="hljs-literal">null</span>
-    <span class="hljs-keyword">this</span>._stopped = <span class="hljs-keyword">new</span> Vestibule
+    <span class="hljs-keyword">this</span>._stopped = <span class="hljs-keyword">new</span> Signal
     <span class="hljs-keyword">this</span>._stopped.open = [ <span class="hljs-literal">null</span>, <span class="hljs-literal">true</span> ]
     events.EventEmitter.call(<span class="hljs-keyword">this</span>)
 }
@@ -86,21 +86,19 @@ Resurrect.prototype.stop = cadence(<span class="hljs-function"><span class="hljs
     }
     <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
         <span class="hljs-keyword">this</span>.process.kill()
-        <span class="hljs-keyword">this</span>._stopped.enter(<span class="hljs-number">1000</span>, <span class="hljs-keyword">async</span>())
+        <span class="hljs-keyword">this</span>._stopped.wait(<span class="hljs-number">1000</span>, <span class="hljs-keyword">async</span>())
     }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">stopped</span>) </span>{
         <span class="hljs-keyword">if</span> (stopped) {
             <span class="hljs-keyword">return</span> [ <span class="hljs-keyword">async</span>.break ]
         }
         <span class="hljs-keyword">this</span>.process.kill(<span class="hljs-string">'SIGKILL'</span>)
-        <span class="hljs-keyword">this</span>._stopped.enter(<span class="hljs-number">1000</span>, <span class="hljs-keyword">async</span>())
+        <span class="hljs-keyword">this</span>._stopped.wait(<span class="hljs-number">1000</span>, <span class="hljs-keyword">async</span>())
     }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">stopped</span>) </span>{
         assert(stopped, <span class="hljs-string">'unable to kill'</span>)
     })
 })
 
-<span class="hljs-built_in">module</span>.exports = Resurrec
-
-</pre></div></div>
+<span class="hljs-built_in">module</span>.exports = Resurrect</pre></div></div>
 
         </li>
 
