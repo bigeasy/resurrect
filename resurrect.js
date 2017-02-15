@@ -48,7 +48,9 @@ Resurrect.prototype.start = function () {
 }
 
 Resurrect.prototype.stop = cadence(function (async) {
-    this._demur.cancel()
+    if (this._demur != null) {
+        this._demur.cancel()
+    }
     if (this.process == null) {
         return
     }
