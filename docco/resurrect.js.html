@@ -80,7 +80,9 @@ Resurrect.prototype.start = <span class="hljs-function"><span class="hljs-keywor
 }
 
 Resurrect.prototype.stop = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async</span>) </span>{
-    <span class="hljs-keyword">this</span>._demur.cancel()
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._demur != <span class="hljs-literal">null</span>) {
+        <span class="hljs-keyword">this</span>._demur.cancel()
+    }
     <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.process == <span class="hljs-literal">null</span>) {
         <span class="hljs-keyword">return</span>
     }
