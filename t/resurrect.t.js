@@ -21,6 +21,8 @@ function prove (async, assert) {
         delta(async()).ee(resurrect.process).on('message')
     }, function () {
         resurrect.stop(async())
+    }, function () {
         assert(true, 'killed')
+        resurrect.stop(async())
     })
 }

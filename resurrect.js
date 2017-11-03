@@ -30,11 +30,11 @@ Resurrect.prototype._run = cadence(function (async) {
         delta(async()).ee(this.process).on('close')
     }, function (code, signal) {
         this.process = null
-        this._stopped.notify(null, true)
         this._demur.retry(async())
     }, function (again) {
         if (!again) {
             this._demur = null
+            this._stopped.notify(null, true)
             return [ loop.break ]
         }
     })()
