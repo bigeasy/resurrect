@@ -23,7 +23,7 @@
                             "abend":                        "1.0.x",
                             "cadence":                      "1.0.x",
                             "delta":                        "1.2.x",
-                            "demur":                        "0.0.x",
+                            "demur":                        "0.1.x",
                             "signal":                       "3.0.x"
     },
     "devDependencies":
