@@ -1,6 +1,6 @@
 {
     "name":                 "resurrect",
-    "version":              "0.0.7",
+    "version":              "0.0.8",
     "description":
 
       "Monitor and restart a child process.",
